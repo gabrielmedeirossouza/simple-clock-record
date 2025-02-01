@@ -1,5 +1,6 @@
 import { Failure, Result, Success } from "@/@core/base/result";
 import { DomainRegistry } from "@/@core/domain/domain-registry";
+import { StringNotEquals } from "@/@core/domain/exceptions/string-not-equals";
 import { StringOutsideRange } from "@/@core/domain/exceptions/string-outside-range";
 
 export class Password {
@@ -17,8 +18,18 @@ export class Password {
     return new Success(new Password(hashedPassword));
   }
 
-  public equals(password: string): boolean {
-    return DomainRegistry.hashService.verify(password, this.value);
+  public checkEquals(password: string): Result<void, PasswordNotEquals> {
+    const equals = DomainRegistry.hashService.verify(password, this.value);
+
+    if (!equals)
+      return new Failure({
+        code: "password_not_equals",
+        message: "Password is not equals.",
+        expected: "*",
+        received: "*",
+      } as const);
+
+    return new Success(undefined);
   }
 
   private validate(password: string): Result<void, PasswordOutsideRange> {
@@ -37,3 +48,6 @@ export class Password {
 
 export interface PasswordOutsideRange
   extends StringOutsideRange<"password_outside_range"> {}
+
+export interface PasswordNotEquals
+  extends StringNotEquals<"password_not_equals"> {}

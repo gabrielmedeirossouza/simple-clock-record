@@ -9,7 +9,7 @@ export class UserRepositoryFactory {
     if (this.instance) return this.instance;
 
     if (environment === "development") {
-      this.instance = new InMemoryUserRepository(false);
+      this.instance = new InMemoryUserRepository();
       return this.instance;
     }
 
